@@ -1,8 +1,8 @@
 package efs.task.reflection;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class ClassInspector {
 
@@ -17,8 +17,13 @@ public class ClassInspector {
    */
   public static Collection<String> getAnnotatedFields(final Class<?> type,
       final Class<? extends Annotation> annotation) {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> hashSet = new HashSet<>();
+
+    for (Field field : type.getDeclaredFields()) {
+      if (field.isAnnotationPresent(annotation))
+        hashSet.add(field.getName());
+    }
+    return hashSet;
   }
 
   /**
@@ -31,8 +36,16 @@ public class ClassInspector {
    * implementowane
    */
   public static Collection<String> getAllDeclaredMethods(final Class<?> type) {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> hashSet = new HashSet<>();
+
+    for (Method method : type.getDeclaredMethods())
+      hashSet.add(method.getName());
+
+    for (Class innerInterface : type.getInterfaces()){
+      for (Method method : innerInterface.getDeclaredMethods())
+        hashSet.add(method.getName());
+    }
+    return hashSet;
   }
 
   /**
@@ -50,7 +63,14 @@ public class ClassInspector {
    * @throws Exception wyjątek spowodowany nie znalezieniem odpowiedniego konstruktora
    */
   public static <T> T createInstance(final Class<T> type, final Object... args) throws Exception {
-    //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return null;
+    Class[] argsClass = new Class[args.length];
+
+    for (int i = 0; i < args.length; i++)
+      argsClass[i] = args[i].getClass();
+
+    Constructor<T> constructor = type.getDeclaredConstructor(argsClass);
+    constructor.setAccessible(true);
+
+    return constructor.newInstance(args);
   }
 }
